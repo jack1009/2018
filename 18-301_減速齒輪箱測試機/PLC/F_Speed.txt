@@ -1,0 +1,66 @@
+/*************************************************************************)
+(*程序名稱:存取Speed流程*)
+(*作者:Andy Wang*)
+(*版本,日期,版本資訊:*)
+(*1.0.0	2018/5/10		初始版本*)
+(*流程*)
+(*PowerOn=0*)
+(*Idle=1*)
+(*讀取開始=2*)
+(*讀取完成=3*)
+(**)	
+(*************************************************************************/
+SPD( SystemReadyStatus , SNR_Speed , K1000 , SpeedSV );
+TON_1(IN:=SystemReadyStatus AND NOT(TON_2.Q)  ,PT:= T#900MS );
+TON_2(IN:=TON_1.Q ,PT:= T#100ms );
+IF  TON_1.Q THEN
+	FOR  ia :=1  TO  99  BY  1  DO//搬移數值
+		F_SpeedData[ia]:=F_SpeedData[ia-1] ;
+	END_FOR;
+	F_SpeedData[0]:=INT_TO_REAL(SpeedSV);
+	FOR  ii := 0  TO  99  BY  1  DO//加總數值
+	    jj:=jj+F_SpeedData[ii] ;
+	END_FOR;
+	SpeedSV_Status:=(jj/100.0/20.0*60);//計算平均
+    jj:=0;
+END_IF;
+HMI_SpeedSV_F:=INT_TO_REAL(SpeedSV/20*60);
+//IF TON_2.Q THEN
+//	jj:=0;
+//END_IF;
+
+//PowerOn=0
+IF NOT(SystemReadyStatus) THEN
+	Autoflow:=0;
+END_IF;
+
+//Idle=1
+IF Autoflow=0 AND SystemReadyStatus THEN
+	Autoflow:=1;
+END_IF;
+IF Autoflow=4  THEN
+	Autoflow:=1;
+END_IF;
+
+//讀取開始=2
+R_TRIG_3(CLK:= F_ReadSpeed  );
+IF Autoflow=1 AND R_TRIG_3.Q THEN
+	Save_SpeedSV_F:=SpeedSV_Status;
+	F_ReadSpeedFinish:=TRUE;
+	Autoflow:=2;
+END_IF;
+
+//讀取完成=3
+IF Autoflow=2  AND F_ReadSpeedFinish THEN
+	Autoflow:=3;
+END_IF;
+
+//數據完成=4
+IF Autoflow=3 AND NOT(F_ReadSpeed) THEN
+	F_ReadSpeedFinish:=FALSE;
+	Autoflow:=4;
+END_IF;
+
+IF Autoflow=4 AND NOT(F_ReadSpeedFinish)  THEN
+	Autoflow:=1;
+END_IF;

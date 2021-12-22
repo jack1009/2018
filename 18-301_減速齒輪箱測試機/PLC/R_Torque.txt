@@ -1,0 +1,78 @@
+/*************************************************************************)
+(*程序名稱:存取Torque流程*)
+(*作者:Andy Wang*)
+(*版本,日期,版本資訊:*)
+(*1.0.0	2018/5/10		初始版本*)
+(*流程*)
+(*PowerOn=0*)
+(*Idle=1*)
+(*讀取開始=2*)
+(*讀取完成=3*)
+(*數據轉換數據儲存=4*)
+(*數據儲存完成=5*)
+(*完成=6*)
+(**)	
+(*************************************************************************/
+
+(*PowerOn=0*)
+IF NOT(SystemReadyStatus) THEN
+	Autoflow:=0;
+END_IF;
+
+(*Idle=1*)
+IF Autoflow=0 AND SystemReadyStatus THEN
+	Autoflow:=1;
+END_IF;
+IF Autoflow=7 THEN
+	Autoflow:=1;
+END_IF;
+
+IF Autoflow=1 AND NOT(R_ReadTorque) THEN
+	R_ReadTorqueFinish:=TRUE;
+	ELSE
+	R_ReadTorqueFinish:=FALSE;
+END_IF;
+
+IF SV>100 OR R_ReadTorqueFinish THEN
+	SV:=0;
+END_IF;
+
+(*讀取開始=2*)
+IF Autoflow=1 AND R_ReadTorque THEN
+	Autoflow:=2;
+END_IF;
+
+
+M_FX5UCPU_SerialComm_Input_00A_1(i_bEN:= Autoflow=2 ,i_stModule:=FX5CPU  ,i_uCh:= 3 ,i_uMaxRecvData:=16 ,o_bENO=> ReadStart ,
+o_bOK=> ReadOK ,o_bErr=> ReadERROR ,o_uErrId=> W_ERROR ,o_uRecvDataLength=> W_uRecvDataLength ,o_uRecvData=> R_ReadRS232SV );
+
+(*讀取完成=3*)
+IF Autoflow=2 AND (ReadOK OR ReadERROR OR SM8582)  THEN
+	Autoflow:=3;
+END_IF;
+
+(*數據轉換數據儲存=4*)
+IF Autoflow=3   THEN
+	WTOB( Autoflow=3 , R_ReadRS232SV , 10 , D200);//字串分離
+	BTOW( Autoflow=3 , D201 , 8 , D250 );//字串結合
+	R_TorqueData[SV]:=STRING_TO_REAL( R_SaveRS232SV );//字串轉成浮點數
+	Autoflow:=4;
+END_IF;
+
+(*數據儲存完成=5*)
+IF Autoflow=4  THEN
+	SV:=SV+1;
+	Autoflow:=5;
+END_IF;
+
+(*完成=6*)
+IF Autoflow=5 THEN
+	Autoflow:=6;
+END_IF;
+TON_1(IN:= Autoflow=6 ,PT:= T#200MS );
+IF Autoflow=6 AND TON_1.Q THEN
+	Autoflow:=7;
+END_IF;
+
+
+	
