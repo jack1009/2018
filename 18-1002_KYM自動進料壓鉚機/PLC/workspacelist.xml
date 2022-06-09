@@ -10,6 +10,11 @@
       <szName>18-505</szName>
       <dtCreateDate>2018-07-16T08:18:58.0742803+08:00</dtCreateDate>
     </D_Workspace>
+    <D_Workspace diffgr:id="D_Workspace3" msdata:rowOrder="2" diffgr:hasChanges="inserted">
+      <iID>3</iID>
+      <szName>18-1002</szName>
+      <dtCreateDate>2022-05-06T09:54:26.4726623+08:00</dtCreateDate>
+    </D_Workspace>
     <D_DBVersion diffgr:id="D_DBVersion2" msdata:rowOrder="0" diffgr:hasChanges="inserted">
       <iSupportVersion>1</iSupportVersion>
       <iCreateVersion>1</iCreateVersion>

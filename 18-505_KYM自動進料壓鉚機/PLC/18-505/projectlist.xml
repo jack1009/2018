@@ -28,6 +28,13 @@
       <iProjectAttributeID>1</iProjectAttributeID>
       <bUserManage>false</bUserManage>
     </D_Project>
+    <D_Project diffgr:id="D_Project5" msdata:rowOrder="4" diffgr:hasChanges="inserted">
+      <iID>4</iID>
+      <szName>18-505_20220505</szName>
+      <dtCreateDate>2022-05-05T14:10:04.1838179+08:00</dtCreateDate>
+      <iProjectAttributeID>1</iProjectAttributeID>
+      <bUserManage>false</bUserManage>
+    </D_Project>
     <D_DBVersion diffgr:id="D_DBVersion2" msdata:rowOrder="0" diffgr:hasChanges="inserted">
       <iSupportVersion>1</iSupportVersion>
       <iCreateVersion>1</iCreateVersion>
